@@ -114,4 +114,18 @@ defmodule JsonSerdeTest do
 
     assert {:ok, input} == JsonSerde.deserialize(serialized_term)
   end
+
+  test "keyword list" do
+    input = [localhost: 9092, option: "value"]
+
+    {:ok, serialized_term} = JsonSerde.serialize(input)
+
+    assert serialized_term ==
+             Jason.encode!(%{
+               data_type_key() => "keyword_list",
+               "values" => [["localhost", 9092], ["option", "value"]]
+             })
+
+    assert {:ok, input} == JsonSerde.deserialize(serialized_term)
+  end
 end
