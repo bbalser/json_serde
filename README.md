@@ -37,6 +37,18 @@ iex(5)> JsonSerde.deserialize(serialized)
 {:ok, %CustomStruct{age: 34, name: "eddie"}}
 ```
 
+###Supported Types
+  * Map
+  * List
+  * MapSet
+  * Tuple
+  * Atom
+  * Date
+  * DateTime
+  * NaiveDateTime
+  * Time
+  * Custom Structs
+
 
 ## Installation
 
