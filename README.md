@@ -37,7 +37,7 @@ iex(5)> JsonSerde.deserialize(serialized)
 {:ok, %CustomStruct{age: 34, name: "eddie"}}
 ```
 
-###Supported Types
+### Supported Types
   * Map
   * List
   * MapSet
