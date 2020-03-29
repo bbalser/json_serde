@@ -36,16 +36,18 @@ defmodule JsonSerde.Alias do
 
   @from_aliases Enum.map(@to_aliases, fn {a, b} -> {b, a} end) |> Map.new()
 
+  @spec to_alias(module) :: String.t()
   def to_alias(module) do
     Map.get_lazy(@to_aliases, module, fn ->
       custom_module = "Elixir.JsonSerde.Custom.Modules.#{module}" |> String.to_atom()
       case Code.ensure_loaded?(custom_module) do
         true -> apply(custom_module, :alias, [])
-        false -> module
+        false -> to_string(module)
       end
     end)
   end
 
+  @spec from_alias(String.t()) :: module
   def from_alias(alias) do
     Map.get_lazy(@from_aliases, alias, fn ->
       custom_module = :"jsonserde_custom_aliases_#{alias}"

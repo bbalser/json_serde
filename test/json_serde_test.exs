@@ -80,6 +80,20 @@ defmodule JsonSerdeTest do
     assert {:ok, input} == JsonSerde.deserialize(serialized_term)
   end
 
+  test "atom" do
+    input = :test_atom
+
+    {:ok, serialized_term} = JsonSerde.serialize(input)
+
+    assert serialized_term ==
+             Jason.encode!(%{
+               data_type_key() => "atom",
+               "value" => "test_atom"
+             })
+
+    assert {:ok, input} == JsonSerde.deserialize(serialized_term)
+  end
+
   test "list" do
     input = [1, 2, Date.utc_today(), 4]
 
@@ -95,6 +109,20 @@ defmodule JsonSerdeTest do
                },
                4
              ])
+
+    assert {:ok, input} == JsonSerde.deserialize(serialized_term)
+  end
+
+  test "tuple" do
+    input = {"one", "two", :three}
+
+    {:ok, serialized_term} = JsonSerde.serialize(input)
+
+    assert serialized_term ==
+             Jason.encode!(%{
+               data_type_key() => "tuple",
+               "values" => ["one", "two", %{"__data_type__" => "atom", "value" => "three"}]
+             })
 
     assert {:ok, input} == JsonSerde.deserialize(serialized_term)
   end
@@ -119,13 +147,6 @@ defmodule JsonSerdeTest do
     input = [localhost: 9092, option: "value"]
 
     {:ok, serialized_term} = JsonSerde.serialize(input)
-
-    assert serialized_term ==
-             Jason.encode!(%{
-               data_type_key() => "keyword_list",
-               "values" => [["localhost", 9092], ["option", "value"]]
-             })
-
     assert {:ok, input} == JsonSerde.deserialize(serialized_term)
   end
 end

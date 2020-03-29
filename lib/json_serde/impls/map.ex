@@ -1,5 +1,6 @@
 defimpl JsonSerde.Serializer, for: Map do
   alias JsonSerde.Ok
+
   def serialize(map) do
     map
     |> Ok.transform(fn {key, value} ->
@@ -14,13 +15,18 @@ defimpl JsonSerde.Deserializer, for: Map do
   import JsonSerde, only: [data_type_key: 0]
   alias JsonSerde.Ok
 
-  def deserialize(_, %{data_type_key() => "keyword_list"} = map) do
-    Map.get(map, "values")
-    |> Ok.transform(fn [key, value] ->
-      with {:ok, term} <- JsonSerde.Deserializer.deserialize(value, value) do
-        {:ok, {String.to_atom(key), term}}
-      end
-    end)
+  def deserialize(_, %{data_type_key() => "atom"} = map) do
+    Map.get(map, "value")
+    |> String.to_atom()
+    |> Ok.ok()
+  end
+
+  def deserialize(_, %{data_type_key() => "tuple"} = map) do
+    with values <- Map.get(map, "values"),
+         {:ok, deserialized} <- JsonSerde.Deserializer.deserialize(values, values),
+         tuple <- List.to_tuple(deserialized) do
+      {:ok, tuple}
+    end
   end
 
   def deserialize(_, %{data_type_key() => alias} = map) do
