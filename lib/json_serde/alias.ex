@@ -2,18 +2,27 @@ defmodule JsonSerde.Alias do
 
   defmacro __using__(opts) do
     alias = Keyword.fetch!(opts, :alias)
-
-    quote do
-      @on_load :__json_serde_load__
-
-      def __json_serde_load__() do
-        Application.put_env(:json_serde, unquote(alias), __MODULE__, persistent: true)
-        :ok
-      end
-
-      def __json_serde_alias__() do
+    module = __CALLER__.module
+    module_contents = quote do
+      def alias() do
         unquote(alias)
       end
+    end
+
+    name = String.to_atom("Elixir.JsonSerde.Custom.Modules.#{module}")
+    Module.create(name, module_contents, Macro.Env.location(__ENV__))
+
+    alias_contents = quote do
+      def module() do
+        unquote(module)
+      end
+    end
+
+    name = :"jsonserde_custom_aliases_#{alias}"
+    Module.create(name, alias_contents, Macro.Env.location(__ENV__))
+
+    quote do
+      :ok
     end
   end
 
@@ -29,8 +38,9 @@ defmodule JsonSerde.Alias do
 
   def to_alias(module) do
     Map.get_lazy(@to_aliases, module, fn ->
-      case function_exported?(module, :__json_serde_alias__, 0) do
-        true -> apply(module, :__json_serde_alias__, [])
+      custom_module = "Elixir.JsonSerde.Custom.Modules.#{module}" |> String.to_atom()
+      case Code.ensure_loaded?(custom_module) do
+        true -> apply(custom_module, :alias, [])
         false -> module
       end
     end)
@@ -38,9 +48,10 @@ defmodule JsonSerde.Alias do
 
   def from_alias(alias) do
     Map.get_lazy(@from_aliases, alias, fn ->
-      case Application.get_env(:json_serde, String.to_atom(alias)) do
-        nil -> String.to_atom(alias)
-        module -> module
+      custom_module = :"jsonserde_custom_aliases_#{alias}"
+      case Code.ensure_loaded?(custom_module) do
+        true -> apply(custom_module, :module, [])
+        false -> String.to_atom(alias)
       end
     end)
   end

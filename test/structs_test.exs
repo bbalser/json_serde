@@ -2,7 +2,7 @@ defmodule JsonSerde.StructTests do
   use ExUnit.Case
 
   defmodule SimpleStruct do
-    use JsonSerde.Alias, alias: :simple
+    use JsonSerde.Alias, alias: "simple"
 
     defstruct [:name, :age, :birthdate]
   end
