@@ -27,6 +27,7 @@ defimpl JsonSerde.Deserializer, for: Any do
   end
 
   defp construct(module, map) do
+    Code.ensure_loaded?(module)
     case function_exported?(module, :new, 1) do
       true -> apply(module, :new, [map])
       false -> struct(module, map)
