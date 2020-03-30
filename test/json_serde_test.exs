@@ -149,4 +149,9 @@ defmodule JsonSerdeTest do
     {:ok, serialized_term} = JsonSerde.serialize(input)
     assert {:ok, input} == JsonSerde.deserialize(serialized_term)
   end
+
+  test "true" do
+    assert {:ok, "true"} == JsonSerde.serialize(true)
+    assert {:ok, true} == JsonSerde.deserialize("true")
+  end
 end
