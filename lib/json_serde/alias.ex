@@ -9,7 +9,7 @@ defmodule JsonSerde.Alias do
       end
     end
 
-    name = String.to_atom("Elixir.JsonSerde.Custom.Modules.#{module}")
+    name = Module.concat(JsonSerde.Custom.Modules, module)
     Module.create(name, module_contents, Macro.Env.location(__ENV__))
 
     alias_contents = quote do
@@ -18,7 +18,7 @@ defmodule JsonSerde.Alias do
       end
     end
 
-    name = :"jsonserde_custom_aliases_#{alias}"
+    name = Module.concat(JsonSerde.Custom.Aliases, alias)
     Module.create(name, alias_contents, Macro.Env.location(__ENV__))
 
     quote do
@@ -39,7 +39,7 @@ defmodule JsonSerde.Alias do
   @spec to_alias(module) :: String.t()
   def to_alias(module) do
     Map.get_lazy(@to_aliases, module, fn ->
-      custom_module = "Elixir.JsonSerde.Custom.Modules.#{module}" |> String.to_atom()
+      custom_module = Module.concat(JsonSerde.Custom.Modules, module)
       case Code.ensure_loaded?(custom_module) do
         true -> apply(custom_module, :alias, [])
         false -> to_string(module)
@@ -50,7 +50,7 @@ defmodule JsonSerde.Alias do
   @spec from_alias(String.t()) :: module
   def from_alias(alias) do
     Map.get_lazy(@from_aliases, alias, fn ->
-      custom_module = :"jsonserde_custom_aliases_#{alias}"
+      custom_module = Module.concat(JsonSerde.Custom.Aliases, alias)
       case Code.ensure_loaded?(custom_module) do
         true -> apply(custom_module, :module, [])
         false -> String.to_atom(alias)
