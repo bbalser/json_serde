@@ -1,31 +1,33 @@
 defimpl JsonSerde.Serializer, for: Map do
-  alias JsonSerde.Ok
+  import Brex.Result.Base, only: [fmap: 2]
+  import Brex.Result.Mappers
 
   def serialize(map) do
     map
-    |> Ok.transform(fn {key, value} ->
+    |> map_while_success(fn {key, value} ->
       JsonSerde.Serializer.serialize(value)
-      |> Ok.map(fn v -> {key, v} end)
+      |> fmap(fn v -> {key, v} end)
     end)
-    |> Ok.map(&Map.new/1)
+    |> fmap(&Map.new/1)
   end
 end
 
 defimpl JsonSerde.Deserializer, for: Map do
   import JsonSerde, only: [data_type_key: 0]
-  alias JsonSerde.Ok
+  import Brex.Result.Base, only: [ok: 1, fmap: 2]
+  import Brex.Result.Mappers
 
   def deserialize(_, %{data_type_key() => "atom"} = map) do
     Map.get(map, "value")
     |> String.to_atom()
-    |> Ok.ok()
+    |> ok()
   end
 
   def deserialize(_, %{data_type_key() => "tuple"} = map) do
     with values <- Map.get(map, "values"),
          {:ok, deserialized} <- JsonSerde.Deserializer.deserialize(values, values),
          tuple <- List.to_tuple(deserialized) do
-      {:ok, tuple}
+      ok(tuple)
     end
   end
 
@@ -36,10 +38,10 @@ defimpl JsonSerde.Deserializer, for: Map do
 
   def deserialize(_, map) do
     map
-    |> Ok.transform(fn {key, value} ->
+    |> map_while_success(fn {key, value} ->
       JsonSerde.Deserializer.deserialize(value, value)
-      |> Ok.map(fn v -> {key, v} end)
+      |> fmap(fn v -> {key, v} end)
     end)
-    |> Ok.map(&Map.new/1)
+    |> fmap(&Map.new/1)
   end
 end

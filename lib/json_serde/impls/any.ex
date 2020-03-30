@@ -14,16 +14,17 @@ defimpl JsonSerde.Serializer, for: Any do
 end
 
 defimpl JsonSerde.Deserializer, for: Any do
-  alias JsonSerde.Ok
   require JsonSerde
+  import Brex.Result.Base, only: [fmap: 2, ok: 1]
+  import Brex.Result.Mappers
 
   def deserialize(%module{}, map) do
     convert(map)
-    |> Ok.map(&construct(module, &1))
+    |> fmap(&construct(module, &1))
   end
 
   def deserialize(_, term) do
-    {:ok, term}
+    ok(term)
   end
 
   defp construct(module, map) do
@@ -37,12 +38,12 @@ defimpl JsonSerde.Deserializer, for: Any do
   defp convert(map) do
     map
     |> Map.delete(JsonSerde.data_type_key())
-    |> Ok.transform(fn {key, value} ->
+    |> map_while_success(fn {key, value} ->
       with {:ok, deserialized} <- JsonSerde.Deserializer.deserialize(value, value) do
         {:ok, {String.to_atom(key), deserialized}}
       end
     end)
-    |> Ok.map(&Map.new/1)
+    |> fmap(&Map.new/1)
   end
 
 end
