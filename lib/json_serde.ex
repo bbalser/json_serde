@@ -2,6 +2,32 @@ defmodule JsonSerde do
   @typedoc "A Json representation of the given term"
   @type serialized_term :: String.t()
 
+  defmacro __using__(opts) do
+    alias = Keyword.fetch!(opts, :alias)
+    module = __CALLER__.module
+    module_contents = quote do
+      def alias() do
+        unquote(alias)
+      end
+    end
+
+    name = Module.concat(JsonSerde.Custom.Modules, module)
+    Module.create(name, module_contents, Macro.Env.location(__ENV__))
+
+    alias_contents = quote do
+      def module() do
+        unquote(module)
+      end
+    end
+
+    name = Module.concat(JsonSerde.Custom.Aliases, alias)
+    Module.create(name, alias_contents, Macro.Env.location(__ENV__))
+
+    quote do
+      :ok
+    end
+  end
+
   defmacro data_type_key(), do: quote do: "__data_type__"
 
   @spec serialize(term) :: {:ok, serialized_term()} | {:error, term}

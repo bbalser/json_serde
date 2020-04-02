@@ -18,7 +18,7 @@ iex(3)> JsonSerde.deserialize(serialized)
 Custom structs can be marked with an alias, so resulting json does not appear elixir specific
 ```elixir
 iex(2)> defmodule CustomStruct do
-...(2)> use JsonSerde.Alias, alias: "custom"
+...(2)> use JsonSerde, alias: "custom"
 ...(2)> defstruct [:name, :age]
 ...(2)> end
 {:module, CustomStruct,

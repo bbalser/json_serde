@@ -1,31 +1,5 @@
 defmodule JsonSerde.Alias do
 
-  defmacro __using__(opts) do
-    alias = Keyword.fetch!(opts, :alias)
-    module = __CALLER__.module
-    module_contents = quote do
-      def alias() do
-        unquote(alias)
-      end
-    end
-
-    name = Module.concat(JsonSerde.Custom.Modules, module)
-    Module.create(name, module_contents, Macro.Env.location(__ENV__))
-
-    alias_contents = quote do
-      def module() do
-        unquote(module)
-      end
-    end
-
-    name = Module.concat(JsonSerde.Custom.Aliases, alias)
-    Module.create(name, alias_contents, Macro.Env.location(__ENV__))
-
-    quote do
-      :ok
-    end
-  end
-
   @to_aliases %{
     DateTime => "date_time",
     Date => "date",
