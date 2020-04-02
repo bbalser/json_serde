@@ -3,28 +3,16 @@ defmodule JsonSerde do
   @type serialized_term :: String.t()
 
   defmacro __using__(opts) do
-    alias = Keyword.fetch!(opts, :alias)
+    alias = Keyword.get(opts, :alias)
+    exclusions = Keyword.get(opts, :exclude, [])
     module = __CALLER__.module
-    module_contents = quote do
-      def alias() do
-        unquote(alias)
-      end
-    end
 
-    name = Module.concat(JsonSerde.Custom.Modules, module)
-    Module.create(name, module_contents, Macro.Env.location(__ENV__))
-
-    alias_contents = quote do
-      def module() do
-        unquote(module)
-      end
-    end
-
-    name = Module.concat(JsonSerde.Custom.Aliases, alias)
-    Module.create(name, alias_contents, Macro.Env.location(__ENV__))
+    JsonSerde.Alias.setup_alias(module, alias)
 
     quote do
-      :ok
+      def __json_serde_exclusions__() do
+        unquote(exclusions)
+      end
     end
   end
 

@@ -4,12 +4,20 @@ defimpl JsonSerde.Serializer, for: Any do
   def serialize(%module{} = struct) do
     struct
     |> Map.from_struct()
+    |> Map.drop(get_exclusions(module))
     |> Map.put(JsonSerde.data_type_key(), JsonSerde.Alias.to_alias(module))
     |> JsonSerde.Serializer.serialize()
   end
 
   def serialize(term) do
     {:ok, term}
+  end
+
+  def get_exclusions(module) do
+    case function_exported?(module, :__json_serde_exclusions__, 0) do
+      true -> apply(module, :__json_serde_exclusions__, [])
+      false -> []
+    end
   end
 end
 

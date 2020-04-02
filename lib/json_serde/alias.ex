@@ -10,6 +10,28 @@ defmodule JsonSerde.Alias do
 
   @from_aliases Enum.map(@to_aliases, fn {a, b} -> {b, a} end) |> Map.new()
 
+  @spec setup_alias(module, String.t()) :: no_return
+  def setup_alias(_module, nil), do: :ok
+  def setup_alias(module, alias) do
+    module_contents = quote do
+      def alias() do
+        unquote(alias)
+      end
+    end
+
+    name = Module.concat(JsonSerde.Custom.Modules, module)
+    Module.create(name, module_contents, Macro.Env.location(__ENV__))
+
+    alias_contents = quote do
+      def module() do
+        unquote(module)
+      end
+    end
+
+    name = Module.concat(JsonSerde.Custom.Aliases, alias)
+    Module.create(name, alias_contents, Macro.Env.location(__ENV__))
+  end
+
   @spec to_alias(module) :: String.t()
   def to_alias(module) do
     Map.get_lazy(@to_aliases, module, fn ->
