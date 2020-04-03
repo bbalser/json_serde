@@ -2,6 +2,20 @@ defmodule JsonSerde do
   @typedoc "A Json representation of the given term"
   @type serialized_term :: String.t()
 
+  defmacro __using__(opts) do
+    alias = Keyword.get(opts, :alias)
+    exclusions = Keyword.get(opts, :exclude, [])
+    module = __CALLER__.module
+
+    JsonSerde.Alias.setup_alias(module, alias)
+
+    quote do
+      def __json_serde_exclusions__() do
+        unquote(exclusions)
+      end
+    end
+  end
+
   defmacro data_type_key(), do: quote do: "__data_type__"
 
   @spec serialize(term) :: {:ok, serialized_term()} | {:error, term}

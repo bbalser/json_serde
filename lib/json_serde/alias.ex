@@ -1,8 +1,18 @@
 defmodule JsonSerde.Alias do
 
-  defmacro __using__(opts) do
-    alias = Keyword.fetch!(opts, :alias)
-    module = __CALLER__.module
+  @to_aliases %{
+    DateTime => "date_time",
+    Date => "date",
+    MapSet => "map_set",
+    NaiveDateTime => "naive_date_time",
+    Time => "time"
+  }
+
+  @from_aliases Enum.map(@to_aliases, fn {a, b} -> {b, a} end) |> Map.new()
+
+  @spec setup_alias(module, String.t()) :: no_return
+  def setup_alias(_module, nil), do: :ok
+  def setup_alias(module, alias) do
     module_contents = quote do
       def alias() do
         unquote(alias)
@@ -20,21 +30,7 @@ defmodule JsonSerde.Alias do
 
     name = Module.concat(JsonSerde.Custom.Aliases, alias)
     Module.create(name, alias_contents, Macro.Env.location(__ENV__))
-
-    quote do
-      :ok
-    end
   end
-
-  @to_aliases %{
-    DateTime => "date_time",
-    Date => "date",
-    MapSet => "map_set",
-    NaiveDateTime => "naive_date_time",
-    Time => "time"
-  }
-
-  @from_aliases Enum.map(@to_aliases, fn {a, b} -> {b, a} end) |> Map.new()
 
   @spec to_alias(module) :: String.t()
   def to_alias(module) do
