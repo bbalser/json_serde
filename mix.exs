@@ -4,7 +4,7 @@ defmodule JsonSerde.MixProject do
   def project do
     [
       app: :json_serde,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -24,7 +24,8 @@ defmodule JsonSerde.MixProject do
     [
       {:jason, "~> 1.2"},
       {:brex_result, "~> 0.4.0"},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
     ]
   end
 
@@ -37,6 +38,6 @@ defmodule JsonSerde.MixProject do
   end
 
   defp description() do
-    "JsonSerde serializes and deserializes nested elixir datastructures."
+    "JsonSerde serializes and deserializes nested elixir datastructures, including custom structs."
   end
 end

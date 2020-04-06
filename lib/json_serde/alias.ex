@@ -10,7 +10,7 @@ defmodule JsonSerde.Alias do
 
   @from_aliases Enum.map(@to_aliases, fn {a, b} -> {b, a} end) |> Map.new()
 
-  @spec setup_alias(module, String.t()) :: no_return
+  @spec setup_alias(module, String.t()) :: :ok
   def setup_alias(_module, nil), do: :ok
   def setup_alias(module, alias) do
     module_contents = quote do
@@ -30,6 +30,7 @@ defmodule JsonSerde.Alias do
 
     name = Module.concat(JsonSerde.Custom.Aliases, alias)
     Module.create(name, alias_contents, Macro.Env.location(__ENV__))
+    :ok
   end
 
   @spec to_alias(module) :: String.t()

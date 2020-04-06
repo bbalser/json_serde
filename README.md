@@ -1,6 +1,6 @@
 # JsonSerde
 
-A Json Serializatin/Deserialization library that aims to create json documents from any
+A Json Serialization/Deserialization library that aims to create json documents from any
 nested data structures and deserialize json documents back to same datastructure.
 
 ```elixir
