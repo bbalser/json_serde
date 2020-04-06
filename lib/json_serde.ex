@@ -51,7 +51,7 @@ defmodule JsonSerde do
 
   ### Custom Structs
 
-  The type key included in all structs is defaulted to "__data_type__" can be customized by:
+  The type key included in all structs is defaulted to "__data_type__" but can be customized by:
 
       config :json_serde, :type_key, "type"
 
