@@ -16,7 +16,12 @@ defmodule JsonSerde do
     end
   end
 
-  defmacro data_type_key(), do: quote do: "__data_type__"
+  defmacro data_type_key() do
+    data_key = Application.get_env(:json_serde, :type_key, "__data_type__")
+    quote do
+      unquote(data_key)
+    end
+  end
 
   @spec serialize(term) :: {:ok, serialized_term()} | {:error, term}
   def serialize(term) do
