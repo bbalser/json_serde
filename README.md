@@ -58,7 +58,7 @@ by adding `json_serde` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:json_serde, "~> 0.1"}
+    {:json_serde, "~> 1.0"}
   ]
 end
 ```
