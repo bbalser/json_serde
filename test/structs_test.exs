@@ -11,7 +11,7 @@ defmodule JsonSerde.StructTests do
     defstruct [:name, :age, :birthdate]
 
     def new(map) do
-      struct(__MODULE__, Map.update!(map, :name, &String.upcase/1))
+      {:ok, struct(__MODULE__, Map.update!(map, :name, &String.upcase/1))}
     end
   end
 

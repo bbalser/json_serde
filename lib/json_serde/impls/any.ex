@@ -23,12 +23,12 @@ end
 
 defimpl JsonSerde.Deserializer, for: Any do
   require JsonSerde
-  import Brex.Result.Base, only: [fmap: 2, ok: 1]
+  import Brex.Result.Base, only: [fmap: 2, ok: 1, bind: 2]
   import Brex.Result.Mappers
 
   def deserialize(%module{}, map) do
     convert(map)
-    |> fmap(&construct(module, &1))
+    |> bind(&construct(module, &1))
   end
 
   def deserialize(_, term) do
@@ -38,8 +38,8 @@ defimpl JsonSerde.Deserializer, for: Any do
   defp construct(module, map) do
     Code.ensure_loaded?(module)
     case function_exported?(module, :new, 1) do
-      true -> apply(module, :new, [map])
-      false -> struct(module, map)
+      true -> apply(module, :new, [map]) |> wrap()
+      false -> struct(module, map) |> ok()
     end
   end
 
@@ -53,5 +53,9 @@ defimpl JsonSerde.Deserializer, for: Any do
     end)
     |> fmap(&Map.new/1)
   end
+
+  defp wrap({:ok, _} = ok), do: ok
+  defp wrap({:error, _} = error), do: error
+  defp wrap(value), do: {:ok, value}
 
 end
