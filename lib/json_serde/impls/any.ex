@@ -37,7 +37,14 @@ defimpl JsonSerde.Deserializer, for: Any do
 
   defp construct(module, map) do
     Code.ensure_loaded?(module)
-    case function_exported?(module, :new, 1) do
+
+    construct =
+      case function_exported?(module, :__json_serde_construct__, 0) do
+        true -> apply(module, :__json_serde_construct__, [])
+        false -> nil
+      end
+
+    case construct != :skip && function_exported?(module, :new, 1) do
       true -> apply(module, :new, [map]) |> wrap()
       false -> struct(module, map) |> ok()
     end
@@ -57,5 +64,4 @@ defimpl JsonSerde.Deserializer, for: Any do
   defp wrap({:ok, _} = ok), do: ok
   defp wrap({:error, _} = error), do: error
   defp wrap(value), do: {:ok, value}
-
 end
