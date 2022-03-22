@@ -1,9 +1,11 @@
 defimpl JsonSerde.Serializer, for: DateTime do
   require JsonSerde
+
   def serialize(datetime) do
-    {:ok, %{
-        JsonSerde.data_type_key() => JsonSerde.Alias.to_alias(DateTime),
-        "value" => DateTime.to_iso8601(datetime)
+    {:ok,
+     %{
+       JsonSerde.data_type_key() => JsonSerde.Alias.to_alias(DateTime),
+       "value" => DateTime.to_iso8601(datetime)
      }}
   end
 end

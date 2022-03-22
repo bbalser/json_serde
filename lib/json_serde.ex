@@ -64,6 +64,7 @@ defmodule JsonSerde do
   defmacro __using__(opts) do
     alias = Keyword.get(opts, :alias)
     exclusions = Keyword.get(opts, :exclude, [])
+    construct = Keyword.get(opts, :construct, nil)
     module = __CALLER__.module
 
     JsonSerde.Alias.setup_alias(module, alias)
@@ -72,11 +73,16 @@ defmodule JsonSerde do
       def __json_serde_exclusions__() do
         unquote(exclusions)
       end
+
+      def __json_serde_construct__() do
+        unquote(construct)
+      end
     end
   end
 
   defmacro data_type_key() do
     data_key = Application.get_env(:json_serde, :type_key, "__data_type__")
+
     quote do
       unquote(data_key)
     end

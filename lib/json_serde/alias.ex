@@ -1,5 +1,4 @@
 defmodule JsonSerde.Alias do
-
   @to_aliases %{
     DateTime => "date_time",
     Date => "date",
@@ -12,21 +11,24 @@ defmodule JsonSerde.Alias do
 
   @spec setup_alias(module, String.t()) :: :ok
   def setup_alias(_module, nil), do: :ok
+
   def setup_alias(module, alias) do
-    module_contents = quote do
-      def alias() do
-        unquote(alias)
+    module_contents =
+      quote do
+        def alias() do
+          unquote(alias)
+        end
       end
-    end
 
     name = Module.concat(JsonSerde.Custom.Modules, module)
     Module.create(name, module_contents, Macro.Env.location(__ENV__))
 
-    alias_contents = quote do
-      def module() do
-        unquote(module)
+    alias_contents =
+      quote do
+        def module() do
+          unquote(module)
+        end
       end
-    end
 
     name = Module.concat(JsonSerde.Custom.Aliases, alias)
     Module.create(name, alias_contents, Macro.Env.location(__ENV__))
@@ -37,6 +39,7 @@ defmodule JsonSerde.Alias do
   def to_alias(module) do
     Map.get_lazy(@to_aliases, module, fn ->
       custom_module = Module.concat(JsonSerde.Custom.Modules, module)
+
       case Code.ensure_loaded?(custom_module) do
         true -> apply(custom_module, :alias, [])
         false -> to_string(module)
@@ -48,6 +51,7 @@ defmodule JsonSerde.Alias do
   def from_alias(alias) do
     Map.get_lazy(@from_aliases, alias, fn ->
       custom_module = Module.concat(JsonSerde.Custom.Aliases, alias)
+
       case Code.ensure_loaded?(custom_module) do
         true -> apply(custom_module, :module, [])
         false -> String.to_atom(alias)
