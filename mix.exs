@@ -4,7 +4,7 @@ defmodule JsonSerde.MixProject do
   def project do
     [
       app: :json_serde,
-      version: "1.0.2",
+      version: "1.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       description: description(),
