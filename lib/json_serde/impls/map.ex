@@ -5,8 +5,10 @@ defimpl JsonSerde.Serializer, for: Map do
   def serialize(map) do
     map
     |> map_while_success(fn {key, value} ->
+      k = JsonSerde.AtomKey.encode(key)
+
       JsonSerde.Serializer.serialize(value)
-      |> fmap(fn v -> {key, v} end)
+      |> fmap(fn v -> {k, v} end)
     end)
     |> fmap(&Map.new/1)
   end
@@ -39,8 +41,10 @@ defimpl JsonSerde.Deserializer, for: Map do
   def deserialize(_, map) do
     map
     |> map_while_success(fn {key, value} ->
+      k = JsonSerde.AtomKey.decode(key)
+
       JsonSerde.Deserializer.deserialize(value, value)
-      |> fmap(fn v -> {key, v} end)
+      |> fmap(fn v -> {k, v} end)
     end)
     |> fmap(&Map.new/1)
   end
