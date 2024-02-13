@@ -55,7 +55,7 @@ defmodule JsonSerde.AtomKey do
   def decode(key) do
     if enabled?() && String.ends_with?(key, @atom_key) do
       key
-      |> String.slice(0..-@key_length)
+      |> String.slice(0..-@key_length//1)
       |> String.to_atom()
     else
       key
