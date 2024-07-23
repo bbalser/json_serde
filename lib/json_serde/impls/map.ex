@@ -2,10 +2,14 @@ defimpl JsonSerde.Serializer, for: Map do
   import Brex.Result.Base, only: [fmap: 2]
   import Brex.Result.Mappers
 
+  require JsonSerde
+
   def serialize(map) do
+    is_struct = Map.has_key?(map, JsonSerde.data_type_key())
+
     map
     |> map_while_success(fn {key, value} ->
-      k = JsonSerde.AtomKey.encode(key)
+      k = JsonSerde.AtomKey.encode(key, is_struct)
 
       JsonSerde.Serializer.serialize(value)
       |> fmap(fn v -> {k, v} end)

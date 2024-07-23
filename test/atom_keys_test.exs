@@ -1,6 +1,18 @@
 defmodule AtomKeysTest do
   use ExUnit.Case
 
+  defmodule AtomSimpleStruct do
+    use JsonSerde, alias: "atom_simple"
+
+    defstruct [:name, :age, :birthdate]
+  end
+
+  defmodule AtomNestedStruct do
+    use JsonSerde, alias: "atom_nested"
+
+    defstruct [:tag, :simple]
+  end
+
   setup do
     Application.put_env(:json_serde, :encode_atom_keys, true)
     :ok
@@ -46,5 +58,35 @@ defmodule AtomKeysTest do
              })
 
     assert {:ok, input} == JsonSerde.deserialize(serialized_term)
+  end
+
+  describe "do not atomize structs" do
+    test "test with nested struct" do
+      input = %AtomNestedStruct{
+        tag: "dev",
+        simple: %AtomSimpleStruct{name: "brian", age: 21, birthdate: Date.utc_today()}
+      }
+
+      {:ok, serialized_value} = JsonSerde.serialize(input)
+
+      assert {:ok, input} == JsonSerde.deserialize(serialized_value)
+    end
+
+    test "test with simple struct" do
+      input = %AtomSimpleStruct{name: "brian", age: 21, birthdate: Date.utc_today()}
+
+      {:ok, serialized_value} = JsonSerde.serialize(input)
+
+      iso = Date.to_iso8601(input.birthdate)
+
+      assert Jason.decode!(serialized_value) == %{
+               "__data_type__" => "atom_simple",
+               "name" => "brian",
+               "age" => 21,
+               "birthdate" => %{"__data_type__" => "date", "value" => iso}
+             }
+
+      assert {:ok, input} == JsonSerde.deserialize(serialized_value)
+    end
   end
 end

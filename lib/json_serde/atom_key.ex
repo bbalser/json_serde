@@ -26,9 +26,9 @@ defmodule JsonSerde.AtomKey do
 
   Note: Encoding atom keys is disabled by defualt and must be enabled in your config.exs.
   """
-  @spec encode(key :: any()) :: any()
-  def encode(key) do
-    if enabled?() && is_atom(key) do
+  @spec encode(key :: any(), boolean()) :: any()
+  def encode(key, is_struct) do
+    if enabled?() && !is_struct && is_atom(key) do
       key
       |> Atom.to_string()
       |> Kernel.<>(@atom_key)
