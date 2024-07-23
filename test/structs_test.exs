@@ -37,6 +37,10 @@ defmodule JsonSerde.StructTests do
     defstruct [:name, :age, :birthdate]
   end
 
+  test "struct has meta-info about alias config" do
+    assert SimpleStruct.__json_serde_alias__() == "simple"
+  end
+
   test "test with decimal" do
     input = %{amount: Decimal.new(1)}
 

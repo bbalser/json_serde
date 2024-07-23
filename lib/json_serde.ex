@@ -77,6 +77,10 @@ defmodule JsonSerde do
       def __json_serde_construct__() do
         unquote(construct)
       end
+
+      def __json_serde_alias__() do
+        unquote(alias)
+      end
     end
   end
 
